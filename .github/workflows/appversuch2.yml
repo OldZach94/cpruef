@@ -1,0 +1,44 @@
+name: C-Pruefung Windows-App bauen
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - master
+
+permissions:
+  contents: read
+
+jobs:
+  build-windows:
+    name: Windows Setup und Portable EXE erstellen
+    runs-on: windows-2022
+
+    steps:
+      - name: Projektdateien laden
+        uses: actions/checkout@v4
+
+      - name: Node.js einrichten
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Abhaengigkeiten installieren
+        run: npm install --no-audit --no-fund
+
+      - name: Windows-App bauen
+        run: npm run dist
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
+
+      - name: Fertige Windows-Dateien bereitstellen
+        uses: actions/upload-artifact@v4
+        with:
+          name: C-Pruefung-Windows-App
+          path: |
+            dist/*.exe
+            dist/*.blockmap
+            dist/latest*.yml
+          if-no-files-found: error
+          retention-days: 30
