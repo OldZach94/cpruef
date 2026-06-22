@@ -1,0 +1,59 @@
+{
+  "name": "c-pruefung",
+  "version": "1.0.0",
+  "description": "Dokumentation der arbeitstäglichen Konstanzprüfung für C-Bögen",
+  "main": "main.js",
+  "author": "Sachariy Mark",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win nsis portable",
+    "dist:portable": "electron-builder --win portable",
+    "dist:setup": "electron-builder --win nsis"
+  },
+  "devDependencies": {
+    "electron": "latest",
+    "electron-builder": "latest"
+  },
+  "build": {
+    "appId": "de.sachariymark.cpruefung",
+    "productName": "C-Prüfung",
+    "copyright": "© Sachariy Mark",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "app/**/*",
+      "assets/**/*",
+      "main.js",
+      "preload.js",
+      "package.json"
+    ],
+    "asar": true,
+    "win": {
+      "icon": "assets/c-pruefung.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "C-Prüfung",
+      "perMachine": false
+    }
+  }
+}

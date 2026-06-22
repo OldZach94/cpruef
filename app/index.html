@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>C-Prüfung</title>
+  <style>
+    :root{
+      --bg:#eef7fb;
+      --bg-2:#f7fbff;
+      --text:#0f2433;
+      --muted:#66798a;
+      --primary:#0b77bd;
+      --primary-2:#11a5c9;
+      --primary-3:#d7f4fb;
+      --success:#16a36a;
+      --success-2:#dcfce7;
+      --warning:#f59e0b;
+      --danger:#dc2626;
+      --card:#ffffffcc;
+      --card-solid:#ffffff;
+      --line:#d8e6ef;
+      --shadow:0 20px 55px rgba(14, 88, 126, .13);
+      --shadow-soft:0 10px 28px rgba(14, 88, 126, .10);
+      --radius:22px;
+      --radius-sm:14px;
+      --focus:0 0 0 4px rgba(17,165,201,.16);
+    }
+    *{box-sizing:border-box}
+    html{height:100%}
+    body{
+      min-height:100%;
+      margin:0;
+      font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(17,165,201,.22), transparent 34rem),
+        radial-gradient(circle at 85% 8%, rgba(11,119,189,.16), transparent 30rem),
+        linear-gradient(135deg, var(--bg), var(--bg-2));
+      overflow-x:hidden;
+    }
+    button,input,textarea{font:inherit}
+    button{cursor:pointer}
+    .app-shell{width:min(1520px, calc(100vw - 42px)); margin:0 auto; padding:24px 0 46px}
+    .topbar{
+      position:sticky; top:0; z-index:10;
+      margin:0 -21px 26px; padding:16px 21px;
+      backdrop-filter: blur(18px);
+      background:linear-gradient(180deg, rgba(238,247,251,.94), rgba(238,247,251,.74));
+      border-bottom:1px solid rgba(216,230,239,.7);
+    }
+    .topbar-inner{display:flex; align-items:center; justify-content:space-between; gap:16px; width:min(1520px, calc(100vw - 42px)); margin:0 auto}
+    .brand{display:flex; align-items:center; gap:14px; min-width:0}
+    .logo{
+      width:54px; height:54px; border-radius:18px;
+      background:linear-gradient(135deg, #053b5e, #0ea5c6 72%, #76e4f7);
+      display:grid; place-items:center; color:white;
+      box-shadow:0 16px 38px rgba(11,119,189,.28);
+      flex:0 0 auto;
+    }
+    .logo svg{width:35px; height:35px; filter:drop-shadow(0 2px 4px rgba(0,0,0,.2))}
+    .logo img{width:100%; height:100%; object-fit:cover; border-radius:18px}
+    .logo.device-logo{background:#fff; padding:0; overflow:hidden; border:2px solid rgba(255,255,255,.95)}
+    .brand h1{margin:0; font-size:clamp(1.35rem,2vw,2rem); letter-spacing:-.04em; line-height:1.05}
+    .brand p{margin:5px 0 0; color:var(--muted); font-size:.95rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+    .actions{display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end}
+    .btn{
+      border:0; border-radius:999px; padding:11px 16px; font-weight:750;
+      display:inline-flex; align-items:center; gap:8px;
+      transition:.18s ease; color:var(--text);
+      background:#fff; box-shadow:var(--shadow-soft); border:1px solid rgba(216,230,239,.9)
+    }
+    .btn:hover{transform:translateY(-2px); box-shadow:var(--shadow)}
+    .btn:focus-visible,.field input:focus,.field textarea:focus{outline:none; box-shadow:var(--focus)}
+    .btn-primary{background:linear-gradient(135deg,var(--primary),var(--primary-2)); color:white; border-color:transparent}
+    .btn-success{background:linear-gradient(135deg,#0f9f65,#1fcf8a); color:white; border-color:transparent}
+    .btn-danger{background:#fff; color:var(--danger); border-color:#ffd4d4}
+    .btn-ghost{box-shadow:none; background:rgba(255,255,255,.62)}
+    .btn:disabled{opacity:.52; cursor:not-allowed; transform:none; box-shadow:none}
+    .hero{
+      display:grid; grid-template-columns:1fr; gap:22px;
+      margin-bottom:22px;
+    }
+    .hero-card{
+      position:relative; overflow:hidden; border-radius:var(--radius); padding:22px 24px;
+      background:linear-gradient(135deg, rgba(255,255,255,.84), rgba(255,255,255,.58));
+      border:1px solid rgba(255,255,255,.78); box-shadow:var(--shadow);
+      display:grid; grid-template-columns:minmax(0,1fr) minmax(410px,520px); align-items:center; gap:22px;
+    }
+    .hero-card:before{
+      content:""; position:absolute; width:320px; height:320px; right:-120px; top:-150px;
+      border-radius:50%; background:rgba(17,165,201,.16);
+    }
+    .hero h2{margin:0 0 9px; font-size:clamp(1.45rem,2.4vw,2.35rem); letter-spacing:-.045em}
+    .hero p{margin:0; color:var(--muted); line-height:1.45; max-width:80ch}
+    .metric-row{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:0}
+    .metric{background:rgba(255,255,255,.7); border:1px solid rgba(216,230,239,.8); border-radius:18px; padding:14px 16px}
+    .metric strong{display:block; font-size:1.8rem; letter-spacing:-.05em}
+    .metric span{color:var(--muted); font-size:.88rem}
+    .notice{
+      border-radius:var(--radius); padding:20px; background:linear-gradient(135deg,#e7f8fd,#ffffffc9);
+      border:1px solid #cceaf4; box-shadow:var(--shadow-soft); min-height:100%;
+      display:flex; flex-direction:column; justify-content:center; gap:8px;
+    }
+    .notice b{font-size:1.05rem}
+    .notice small{color:var(--muted); line-height:1.45}
+    .device-grid{
+      display:grid;
+      grid-template-columns:repeat(4, minmax(0,1fr));
+      gap:18px;
+    }
+    .device-card{
+      position:relative; aspect-ratio:16/9; border-radius:var(--radius); overflow:hidden;
+      background:rgba(255,255,255,.78); border:1px solid rgba(255,255,255,.85);
+      box-shadow:var(--shadow-soft); display:grid; grid-template-columns:42% 58%;
+      min-height:160px; isolation:isolate;
+      transition:transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+    }
+    .device-card:hover{transform:translateY(-5px) scale(1.01); box-shadow:0 24px 60px rgba(14,88,126,.18); border-color:rgba(17,165,201,.35)}
+    .device-card:after{
+      content:""; position:absolute; inset:auto -55px -70px auto; width:150px; height:150px; border-radius:50%;
+      background:rgba(17,165,201,.12); z-index:-1; transition:.22s ease;
+    }
+    .device-card:hover:after{transform:scale(1.18)}
+    .device-image{height:100%; min-width:0; background:linear-gradient(145deg,#dff5fb,#ffffff); display:grid; place-items:center; overflow:hidden}
+    .device-image img{width:100%; height:100%; object-fit:cover}
+    .device-placeholder{width:70%; aspect-ratio:1; border-radius:24px; display:grid; place-items:center; background:linear-gradient(135deg,#d9f4fb,#fff); border:1px solid #c9e8f2; color:var(--primary)}
+    .device-placeholder svg{width:68%; height:68%}
+    .device-info{padding:18px 16px 14px; min-width:0; display:flex; flex-direction:column; justify-content:center; gap:6px}
+    .device-info h3{margin:0; font-size:clamp(1.02rem,1.25vw,1.4rem); line-height:1.05; letter-spacing:-.035em; overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical}
+    .device-info .meta{display:flex; align-items:center; gap:7px; color:var(--muted); font-size:.9rem; min-width:0}
+    .device-info .meta span{overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+    .card-gear{
+      position:absolute; right:10px; top:10px; width:36px; height:36px; border-radius:50%; border:0;
+      background:rgba(255,255,255,.9); color:#315062; box-shadow:0 8px 20px rgba(13,58,82,.15); display:grid; place-items:center;
+      transition:.18s ease; z-index:2;
+    }
+    .card-gear:hover{transform:rotate(28deg) scale(1.06); color:var(--primary)}
+    .empty-state{
+      border:2px dashed #bddbe8; border-radius:var(--radius); min-height:270px; display:grid; place-items:center; text-align:center;
+      background:rgba(255,255,255,.45); color:var(--muted); padding:28px;
+    }
+    .empty-state strong{display:block; color:var(--text); font-size:1.25rem; margin-bottom:6px}
+    .view{display:none}.view.active{display:block}
+    .check-layout{display:grid; grid-template-columns:minmax(350px,.95fr) minmax(530px,1.35fr); gap:22px; align-items:start}
+    .panel{
+      background:rgba(255,255,255,.82); border:1px solid rgba(255,255,255,.9); border-radius:var(--radius);
+      box-shadow:var(--shadow); padding:22px; overflow:hidden;
+    }
+    .panel-title{display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:18px}
+    .panel-title h2,.panel-title h3{margin:0; letter-spacing:-.035em}.panel-title p{margin:5px 0 0; color:var(--muted); line-height:1.35}
+    .device-mini{display:flex; align-items:center; gap:12px; min-width:0}
+    .device-mini .mini-img{width:56px; height:56px; border-radius:16px; overflow:hidden; background:#e7f8fd; display:grid; place-items:center; flex:0 0 auto}
+    .device-mini .mini-img img{width:100%; height:100%; object-fit:cover}
+    .device-mini b{display:block; font-size:1.1rem; line-height:1.05}.device-mini span{color:var(--muted); font-size:.9rem}
+    .form-grid{display:grid; gap:15px}
+    .field label{display:flex; align-items:center; justify-content:space-between; gap:8px; color:#29465a; font-weight:750; font-size:.92rem; margin:0 0 7px}
+    .field input,.field textarea{
+      width:100%; border:1px solid var(--line); background:#fff; color:var(--text); border-radius:16px;
+      padding:12px 13px; transition:.15s ease; resize:vertical;
+    }
+    .field textarea{min-height:108px; line-height:1.45}.field .hint{font-weight:600; color:var(--muted); font-size:.8rem}
+    .ok-button{
+      width:100%; border:0; min-height:68px; border-radius:21px; color:white; font-weight:900; font-size:1.18rem;
+      background:linear-gradient(135deg,#0d8c5d,#23c98a); box-shadow:0 20px 45px rgba(22,163,106,.25);
+      display:flex; justify-content:center; align-items:center; gap:11px; transition:.2s ease; margin-top:2px;
+    }
+    .ok-button:hover{transform:translateY(-3px); box-shadow:0 24px 58px rgba(22,163,106,.32)}
+    .ok-button:disabled{opacity:.5; transform:none; box-shadow:none; cursor:not-allowed}
+    .lock-note{font-size:.9rem; color:var(--muted); padding:12px 13px; border:1px solid #fde5b4; background:#fff8e6; border-radius:15px; display:none}
+    .lock-note.show{display:block}
+    .perma-info{
+      border-radius:20px; background:linear-gradient(135deg,#f1fbfe,#fff); border:1px solid #d4edf5; padding:16px;
+    }
+    .perma-info h3{margin:0 0 10px; font-size:1.03rem}.info-list{display:grid; gap:7px; margin-bottom:12px}
+    .info-list div{display:flex; gap:8px; color:var(--muted); font-size:.93rem}.info-list b{color:#24475e; min-width:84px}
+    .calendar-toolbar{display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:14px}
+    .calendar-toolbar h2{margin:0; font-size:1.25rem; letter-spacing:-.035em}
+    .month-grid{display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:16px}
+    .month{border:1px solid var(--line); border-radius:20px; background:rgba(255,255,255,.72); padding:14px; overflow:hidden}
+    .month h3{margin:0 0 12px; text-align:center; letter-spacing:-.02em}
+    .weekdays,.days{display:grid; grid-template-columns:repeat(7, 1fr); gap:6px}
+    .weekdays span{text-align:center; font-weight:800; font-size:.74rem; color:#668090; text-transform:uppercase; letter-spacing:.05em}
+    .day{
+      min-height:76px; border:1px solid #e1edf3; border-radius:14px; background:#fff; padding:7px;
+      display:flex; flex-direction:column; gap:4px; transition:.16s ease; position:relative; overflow:hidden;
+    }
+    .day:hover{transform:translateY(-2px); border-color:#9edbec; box-shadow:0 10px 23px rgba(14,88,126,.10)}
+    .day.out{opacity:.28; background:#f6fafc}.day.weekend{background:#f8fbfd}.day.today{border-color:#0ea5c6; box-shadow:inset 0 0 0 2px rgba(14,165,198,.12)}
+    .day.selected{border-color:#0b77bd; box-shadow:0 0 0 3px rgba(11,119,189,.13)}
+    .day-number{font-weight:850; font-size:.9rem; display:flex; align-items:center; justify-content:space-between}
+    .check-badge{
+      display:flex; align-items:center; gap:4px; min-width:0; font-weight:850; color:#0b7d51; background:var(--success-2); border:1px solid #a9efc7; border-radius:999px; padding:3px 6px; font-size:.72rem;
+    }
+    .person{font-size:.76rem; color:#0d6b49; font-weight:750; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+    .small-note{font-size:.72rem; color:var(--muted); overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical}
+    .day-info-card{margin-top:16px; border-radius:20px; border:1px solid #d4edf5; background:linear-gradient(135deg,#f3fbfe,#fff); padding:16px}
+    .day-info-card h3{margin:0 0 8px; letter-spacing:-.02em}.day-info-card p{margin:6px 0; color:var(--muted); line-height:1.4}.day-info-card b{color:#21465b}.day-actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:12px}
+
+    .screen-check-panel{border-radius:18px; border:1px solid #d4edf5; background:linear-gradient(135deg,#f3fbfe,#fff); padding:12px; display:grid; gap:10px}
+    .screen-head{display:flex; align-items:flex-end; justify-content:space-between; gap:10px}
+    .screen-head h3{margin:0; font-size:1rem; letter-spacing:-.02em}.screen-head span{font-size:.8rem; color:var(--muted); font-weight:700}
+    .screen-buttons{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px}
+    .screen-tile{border:1px solid #d6e8f0; border-radius:17px; min-height:92px; background:#fff; color:#416174; display:grid; place-items:center; gap:5px; font-weight:850; transition:.18s ease; padding:10px}
+    .screen-tile:hover{transform:translateY(-2px); border-color:#9edbec; box-shadow:var(--shadow-soft)}
+    .screen-tile.selected{background:linear-gradient(135deg,#dcfce7,#ffffff); color:#0b7d51; border-color:#8ee6b4; box-shadow:0 14px 30px rgba(22,163,106,.16)}
+    .screen-tile:disabled{opacity:.55; cursor:not-allowed; transform:none; box-shadow:none}.screen-icon svg{width:58px; height:42px; display:block}
+    .day-modal{width:min(620px,100%)}.day-status{display:grid; gap:8px}.day-status p{margin:0; color:var(--muted); line-height:1.45}.day-status b{color:#21465b}.screen-tags{display:flex; gap:8px; flex-wrap:wrap}.screen-tag{border-radius:999px; padding:6px 10px; background:#eaf8ee; border:1px solid #b7ebcb; color:#0b7d51; font-weight:850; font-size:.86rem}
+    body.check-mode .app-shell{padding-top:0; padding-bottom:18px} body.check-mode .topbar{margin-bottom:10px; padding-top:10px; padding-bottom:10px} body.check-mode .logo{width:46px; height:46px; border-radius:15px} body.check-mode .logo svg{width:30px; height:30px} body.check-mode .brand h1{font-size:clamp(1.1rem,1.5vw,1.45rem)} body.check-mode .brand p{font-size:.88rem} body.check-mode .check-layout{grid-template-columns:minmax(330px,.78fr) minmax(620px,1.52fr); gap:14px} body.check-mode .panel{padding:15px} body.check-mode .panel-title{margin-bottom:10px} body.check-mode .panel-title p{display:none} body.check-mode .form-grid{gap:9px} body.check-mode .field label{font-size:.86rem; margin-bottom:5px} body.check-mode .field input,body.check-mode .field textarea{padding:9px 10px; border-radius:13px} body.check-mode .field textarea{min-height:64px} body.check-mode #permanentInfo{min-height:58px} body.check-mode .ok-button{min-height:54px; border-radius:17px; font-size:1.02rem} body.check-mode .perma-info{padding:11px; border-radius:17px} body.check-mode .perma-info h3{font-size:.95rem; margin-bottom:6px} body.check-mode .info-list{gap:3px; margin-bottom:7px} body.check-mode .info-list div{font-size:.82rem} body.check-mode .calendar-toolbar{margin-bottom:8px} body.check-mode .calendar-toolbar h2{font-size:1.08rem} body.check-mode .calendar-toolbar p{display:none} body.check-mode .month-grid{gap:10px} body.check-mode .month{padding:10px; border-radius:17px} body.check-mode .month h3{font-size:1rem; margin-bottom:8px} body.check-mode .weekdays,.days{gap:4px} body.check-mode .day{min-height:54px; padding:5px; border-radius:11px} body.check-mode .small-note{display:none} body.check-mode .check-badge{font-size:.68rem; padding:2px 5px} body.check-mode .person{font-size:.69rem}
+    @media (max-width:1200px){body.check-mode{overflow:auto} body.check-mode .check-layout{grid-template-columns:1fr}.screen-tile{min-height:82px}}
+    .modal-backdrop{position:fixed; inset:0; background:rgba(8,30,44,.45); backdrop-filter:blur(10px); display:none; align-items:center; justify-content:center; z-index:50; padding:22px}
+    .modal-backdrop.open{display:flex}
+    .modal{width:min(740px,100%); max-height:92vh; overflow:auto; background:#fff; border-radius:28px; box-shadow:0 35px 100px rgba(0,0,0,.28); border:1px solid rgba(255,255,255,.86)}
+    .modal-header{display:flex; align-items:flex-start; justify-content:space-between; gap:14px; padding:22px 24px; border-bottom:1px solid var(--line); background:linear-gradient(135deg,#f4fbfe,#fff)}
+    .modal-header h2{margin:0; letter-spacing:-.035em}.modal-header p{margin:5px 0 0; color:var(--muted)}
+    .modal-body{padding:22px 24px; display:grid; gap:14px}.modal-footer{padding:16px 24px 24px; display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap}
+    .close-x{border:0; background:#edf7fb; width:40px; height:40px; border-radius:50%; font-size:1.25rem; color:#315062}
+    .image-picker{display:grid; grid-template-columns:150px minmax(0,1fr); gap:15px; align-items:center; padding:14px; border:1px dashed #b8ddea; border-radius:18px; background:#f8fcfe}
+    .preview-square{width:150px; aspect-ratio:1; border-radius:22px; overflow:hidden; background:linear-gradient(135deg,#e7f8fd,#fff); border:1px solid #cbeaf3; display:grid; place-items:center; color:var(--primary)}
+    .preview-square img{width:100%; height:100%; object-fit:cover}
+
+    .app-footer{width:min(1520px, calc(100vw - 42px)); margin:4px auto 26px; color:var(--muted); font-weight:750; font-size:.9rem; text-align:center}
+    .two-cols{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .export-note{border-radius:18px; padding:13px 15px; background:#f3fbfe; border:1px solid #d4edf5; color:var(--muted); line-height:1.45}
+    .toast{position:fixed; right:24px; bottom:24px; z-index:80; background:#0e3145; color:white; padding:13px 16px; border-radius:16px; box-shadow:0 18px 42px rgba(0,0,0,.22); opacity:0; transform:translateY(16px); pointer-events:none; transition:.22s ease; max-width:min(420px,calc(100vw - 42px)); font-weight:750}
+    .toast.show{opacity:1; transform:translateY(0)}
+    .sr-only{position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0}
+    @media (max-width:1200px){.device-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.check-layout{grid-template-columns:1fr}.month-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media (max-width:880px){.app-shell,.topbar-inner{width:min(100vw - 24px,1520px)}.topbar{margin:0 -12px 18px; padding:12px}.hero{grid-template-columns:1fr}.hero-card{grid-template-columns:1fr}.device-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.month-grid{grid-template-columns:1fr}.actions{justify-content:flex-start}.topbar-inner{align-items:flex-start; flex-direction:column}.brand p{white-space:normal}.metric-row{grid-template-columns:repeat(3,1fr)}.device-card{min-height:150px}.image-picker{grid-template-columns:1fr}.preview-square{width:min(220px,100%)}}
+    @media (max-width:560px){.two-cols{grid-template-columns:1fr}.metric-row{grid-template-columns:1fr}.device-grid{grid-template-columns:1fr}.device-card{aspect-ratio:auto; min-height:178px}.check-layout{grid-template-columns:1fr}.panel{padding:16px}.day{min-height:68px; padding:6px}.person,.small-note{display:none}.btn{width:100%; justify-content:center}.calendar-toolbar{align-items:stretch; flex-direction:column}.calendar-toolbar .actions{display:grid; grid-template-columns:1fr 1fr 1fr}.calendar-toolbar .btn{width:auto;padding:10px 12px}.modal-footer .btn{width:100%}}
+    @media print{.topbar,.actions,.btn,.card-gear,.modal-backdrop,.toast{display:none!important}body{background:white}.app-shell{width:100%; padding:0}.panel,.device-card,.hero-card,.notice{box-shadow:none; border:1px solid #ccc}}
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="logo" id="topLogo" aria-hidden="true">
+          <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M46 12C37.7 4.9 24.9 5.5 17.4 13.2C9.4 21.4 9.5 34.6 17.6 42.6C24.6 49.4 35.3 50.5 43.5 45.9" stroke="currentColor" stroke-width="7" stroke-linecap="round"/>
+            <path d="M37 24H52C55.3 24 58 26.7 58 30V31.5C58 34.8 55.3 37.5 52 37.5H36.5" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+            <path d="M18 50H47" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+            <circle cx="31" cy="31" r="6" fill="currentColor"/>
+          </svg>
+        </div>
+        <div>
+          <h1 id="topbarTitle">C-Prüfung</h1>
+          <p id="topbarSubtitle">Dokumentation der arbeitstäglichen Konstanzprüfung für C‑Bögen</p>
+        </div>
+      </div>
+      <div class="actions" id="topbarActions">
+        <button class="btn" id="topBackHomeBtn" type="button" hidden>← Zur Startseite</button>
+        <button class="btn btn-primary" id="exportPdfBtn" type="button" hidden>📄 PDF-Export</button>
+        <button class="btn btn-ghost" id="backupBtn" type="button">⬇️ Sicherung</button>
+        <label class="btn btn-ghost" for="importFile">⬆️ Import</label>
+        <input class="sr-only" id="importFile" type="file" accept="application/json" />
+        <button class="btn btn-primary" id="addDeviceBtn" type="button">＋ C‑Bogen hinzufügen</button>
+      </div>
+    </div>
+  </div>
+
+  <main class="app-shell">
+    <section id="homeView" class="view active">
+      <div class="hero">
+        <div class="hero-card">
+          <h2>Alle Geräte auf einen Blick.</h2>
+          <p>Lege jeden C‑Bogen mit Bild, Standort, MGZ‑Nr. und Notizen an. Per Klick auf eine Kachel öffnest du die tägliche Prüfungsansicht mit Kalender und 7‑Tage‑Bearbeitungsschutz.</p>
+          <div class="metric-row">
+            <div class="metric"><strong id="metricDevices">0</strong><span>C‑Bögen</span></div>
+            <div class="metric"><strong id="metricToday">0</strong><span>heute geprüft</span></div>
+            <div class="metric"><strong id="metricWeek">0</strong><span>Einträge letzte 7 Tage</span></div>
+          </div>
+        </div>
+      </div>
+      <div id="deviceGrid" class="device-grid"></div>
+      <div id="emptyState" class="empty-state" hidden>
+        <div>
+          <strong>Noch kein C‑Bogen angelegt</strong>
+          <span>Starte mit „C‑Bogen hinzufügen“ und erfasse Name, Standort, MGZ‑Nr. und ein quadratisches Vorschaubild.</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="checkView" class="view">
+      <div class="check-layout">
+        <aside class="panel">
+          <div class="panel-title">
+            <div>
+              <h2>Arbeitstägliche Konstanzprüfung</h2>
+              <p>Prüfung eintragen oder einen Tag im Kalender auswählen.</p>
+            </div>
+          </div>
+          <div class="form-grid">
+            <div class="field">
+              <label for="checkDate">Datum <span class="hint" id="dateHint">heute</span></label>
+              <input id="checkDate" type="date" />
+            </div>
+            <div class="field">
+              <label for="checkPerson">Name: Wer hat geprüft?</label>
+              <input id="checkPerson" type="text" placeholder="z. B. Max Mustermann" autocomplete="name" />
+            </div>
+            <div class="field">
+              <label for="checkNote">Tagesnotiz <span class="hint">optional</span></label>
+              <textarea id="checkNote" placeholder="Besonderheiten, Rückfragen, Auffälligkeiten …"></textarea>
+            </div>
+            <div class="screen-check-panel" aria-label="Bildschirmprüfung">
+              <div class="screen-head">
+                <h3>Bildschirmkontrolle</h3>
+                <span id="screenHint">Mindestens einen Bildschirm bestätigen</span>
+              </div>
+              <div class="screen-buttons">
+                <button class="screen-tile" id="screenLeftBtn" type="button" data-screen="left" aria-pressed="false">
+                  <span class="screen-icon" aria-hidden="true"><svg viewBox="0 0 120 82" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="8" y="8" width="84" height="54" rx="10" stroke="currentColor" stroke-width="7"/><path d="M44 66H56V76H34H66" stroke="currentColor" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><path d="M105 23V55" stroke="currentColor" stroke-width="7" stroke-linecap="round"/><path d="M103 23L112 32" stroke="currentColor" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                  <span>Linker Bildschirm</span>
+                </button>
+                <button class="screen-tile" id="screenRightBtn" type="button" data-screen="right" aria-pressed="false">
+                  <span class="screen-icon" aria-hidden="true"><svg viewBox="0 0 120 82" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="28" y="8" width="84" height="54" rx="10" stroke="currentColor" stroke-width="7"/><path d="M64 66H76V76H54H86" stroke="currentColor" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 23V55" stroke="currentColor" stroke-width="7" stroke-linecap="round"/><path d="M17 23L8 32" stroke="currentColor" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                  <span>Rechter Bildschirm</span>
+                </button>
+              </div>
+            </div>
+            <button class="ok-button" id="saveCheckBtn" type="button">✓ C‑Bogen in Ordnung eintragen</button>
+            <div class="lock-note" id="lockNote"></div>
+            <div class="perma-info">
+              <h3>Permanent sichtbare Geräte-Informationen</h3>
+              <div class="info-list" id="deviceInfoList"></div>
+              <div class="field">
+                <label for="permanentInfo">Zusätzliche permanente Infos <span class="hint">bleibt gespeichert</span></label>
+                <textarea id="permanentInfo" placeholder="z. B. Prüfkörper-Lagerort, Ansprechpartner, Besonderheiten des Geräts …"></textarea>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <section class="panel">
+          <div class="calendar-toolbar">
+            <div>
+              <h2>Zwei-Monats-Übersicht</h2>
+              <p style="margin:5px 0 0;color:var(--muted)">Grüner Haken = Prüfung erfolgt.</p>
+            </div>
+            <div class="actions">
+              <button class="btn btn-ghost" id="prevMonthBtn" type="button">‹</button>
+              <button class="btn btn-ghost" id="todayBtn" type="button">Heute</button>
+              <button class="btn btn-ghost" id="nextMonthBtn" type="button">›</button>
+            </div>
+          </div>
+          <div id="monthGrid" class="month-grid"></div>
+          <div id="dayInfo" class="day-info-card" hidden></div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <footer class="app-footer">© Sachariy Mark</footer>
+
+  <div class="modal-backdrop" id="deviceModal">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-header">
+        <div>
+          <h2 id="modalTitle">C‑Bogen hinzufügen</h2>
+          <p>Stammdaten und Vorschaubild im 1:1‑Format erfassen.</p>
+        </div>
+        <button class="close-x" id="closeModalBtn" type="button" aria-label="Schließen">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="image-picker">
+          <div class="preview-square" id="imagePreview"></div>
+          <div class="field">
+            <label for="deviceImage">Vorschaubild <span class="hint">wird quadratisch zugeschnitten</span></label>
+            <input id="deviceImage" type="file" accept="image/*" />
+          </div>
+        </div>
+        <div class="field">
+          <label for="deviceName">Name des C‑Bogens</label>
+          <input id="deviceName" type="text" placeholder="z. B. Ziehm Vision RFD" />
+        </div>
+        <div class="field">
+          <label for="deviceLocation">Standort</label>
+          <input id="deviceLocation" type="text" placeholder="z. B. OP 3 / Unfallchirurgie" />
+        </div>
+        <div class="field">
+          <label for="deviceMgz">MGZ‑Nr.</label>
+          <input id="deviceMgz" type="text" placeholder="z. B. MGZ‑12345" />
+        </div>
+        <div class="field">
+          <label for="deviceNotes">Gerätenotizen</label>
+          <textarea id="deviceNotes" placeholder="Wichtige Hinweise zum Gerät, Ansprechpartner, Besonderheiten …"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-danger" id="deleteDeviceBtn" type="button" hidden>Gerät löschen</button>
+        <button class="btn" id="cancelModalBtn" type="button">Abbrechen</button>
+        <button class="btn btn-primary" id="saveDeviceBtn" type="button">Speichern</button>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="modal-backdrop" id="dayModal">
+    <div class="modal day-modal" role="dialog" aria-modal="true" aria-labelledby="dayModalTitle">
+      <div class="modal-header">
+        <div>
+          <h2 id="dayModalTitle">Kalendertag</h2>
+          <p>Details zur arbeitstäglichen Konstanzprüfung.</p>
+        </div>
+        <button class="close-x" id="closeDayModalBtn" type="button" aria-label="Schließen">×</button>
+      </div>
+      <div class="modal-body" id="dayModalBody"></div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="exportModal">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="exportModalTitle">
+      <div class="modal-header">
+        <div>
+          <h2 id="exportModalTitle">PDF-Export</h2>
+          <p>Zeitraum für die Dokumentation auswählen.</p>
+        </div>
+        <button class="close-x" id="closeExportModalBtn" type="button" aria-label="Schließen">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid two-cols">
+          <div class="field">
+            <label for="exportStart">Von</label>
+            <input id="exportStart" type="date" />
+          </div>
+          <div class="field">
+            <label for="exportEnd">Bis</label>
+            <input id="exportEnd" type="date" />
+          </div>
+        </div>
+        <div class="export-note" id="exportNote">Exportiert werden alle eingetragenen Prüfungen im gewählten Zeitraum.</div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" id="cancelExportModalBtn" type="button">Abbrechen</button>
+        <button class="btn btn-primary" id="startPdfExportBtn" type="button">PDF erstellen</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const STORAGE_KEY = 'c-pruefung-portable-v1';
+    const $ = (selector) => document.querySelector(selector);
+    const state = loadState();
+    let activeDeviceId = null;
+    let editingDeviceId = null;
+    let pendingImage = null;
+    let calBase = firstOfMonth(new Date());
+    let selectedDate = toISODate(new Date());
+    let selectedScreens = new Set();
+
+    const els = {
+      homeView: $('#homeView'), checkView: $('#checkView'), deviceGrid: $('#deviceGrid'), emptyState: $('#emptyState'),
+      addDeviceBtn: $('#addDeviceBtn'), backupBtn: $('#backupBtn'), importFile: $('#importFile'), topBackHomeBtn: $('#topBackHomeBtn'), exportPdfBtn: $('#exportPdfBtn'),
+      topbarTitle: $('#topbarTitle'), topbarSubtitle: $('#topbarSubtitle'), topLogo: $('#topLogo'),
+      metricDevices: $('#metricDevices'), metricToday: $('#metricToday'), metricWeek: $('#metricWeek'),
+      checkDate: $('#checkDate'), checkPerson: $('#checkPerson'), checkNote: $('#checkNote'),
+      saveCheckBtn: $('#saveCheckBtn'), lockNote: $('#lockNote'), dateHint: $('#dateHint'), permanentInfo: $('#permanentInfo'), deviceInfoList: $('#deviceInfoList'),
+      screenLeftBtn: $('#screenLeftBtn'), screenRightBtn: $('#screenRightBtn'), screenHint: $('#screenHint'),
+      monthGrid: $('#monthGrid'), dayInfo: $('#dayInfo'), dayModal: $('#dayModal'), dayModalTitle: $('#dayModalTitle'), dayModalBody: $('#dayModalBody'), closeDayModalBtn: $('#closeDayModalBtn'),
+      exportModal: $('#exportModal'), exportStart: $('#exportStart'), exportEnd: $('#exportEnd'), exportNote: $('#exportNote'), closeExportModalBtn: $('#closeExportModalBtn'), cancelExportModalBtn: $('#cancelExportModalBtn'), startPdfExportBtn: $('#startPdfExportBtn'),
+      prevMonthBtn: $('#prevMonthBtn'), nextMonthBtn: $('#nextMonthBtn'), todayBtn: $('#todayBtn'),
+      deviceModal: $('#deviceModal'), modalTitle: $('#modalTitle'), closeModalBtn: $('#closeModalBtn'), cancelModalBtn: $('#cancelModalBtn'),
+      saveDeviceBtn: $('#saveDeviceBtn'), deleteDeviceBtn: $('#deleteDeviceBtn'), deviceImage: $('#deviceImage'), imagePreview: $('#imagePreview'),
+      deviceName: $('#deviceName'), deviceLocation: $('#deviceLocation'), deviceMgz: $('#deviceMgz'), deviceNotes: $('#deviceNotes'), toast: $('#toast')
+    };
+
+    function loadState(){
+      try{
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if(!raw) return { devices: [] };
+        const parsed = JSON.parse(raw);
+        if(!parsed || !Array.isArray(parsed.devices)) return { devices: [] };
+        parsed.devices.forEach(d => { d.checks = d.checks || {}; d.notes = d.notes || ''; d.permanentInfo = d.permanentInfo || ''; Object.values(d.checks).forEach(c => { c.screens = Array.isArray(c.screens) ? c.screens : []; }); });
+        return parsed;
+      }catch(err){
+        console.warn('Speicher konnte nicht geladen werden:', err);
+        return { devices: [] };
+      }
+    }
+    function persist(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+    function id(){ return 'id-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2,8); }
+    function escapeHTML(value=''){
+      return String(value).replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
+    }
+    function firstOfMonth(date){ return new Date(date.getFullYear(), date.getMonth(), 1); }
+    function addMonths(date, amount){ return new Date(date.getFullYear(), date.getMonth()+amount, 1); }
+    function toISODate(date){
+      const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      const tz = d.getTimezoneOffset();
+      return new Date(d.getTime() - tz*60000).toISOString().slice(0,10);
+    }
+    function parseISODate(iso){ const [y,m,d] = iso.split('-').map(Number); return new Date(y, m-1, d); }
+    function formatDate(iso){ return parseISODate(iso).toLocaleDateString('de-DE', { weekday:'long', day:'2-digit', month:'2-digit', year:'numeric' }); }
+    function formatMonth(date){ return date.toLocaleDateString('de-DE', { month:'long', year:'numeric' }); }
+    function formatTime(iso){
+      if(!iso) return '—';
+      return new Date(iso).toLocaleString('de-DE', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+    }
+    function daysFromToday(iso){
+      const selected = parseISODate(iso).setHours(0,0,0,0);
+      const today = new Date(); today.setHours(0,0,0,0);
+      return Math.round((today - selected) / 86400000);
+    }
+    function isEditableDate(iso){ const diff = daysFromToday(iso); return diff >= 0 && diff <= 7; }
+    function dateStatusText(iso){
+      const diff = daysFromToday(iso);
+      if(diff < 0) return 'Zukünftige Tage können noch nicht dokumentiert werden.';
+      if(diff > 7) return 'Dieser Eintrag liegt mehr als 7 Tage zurück und ist gesperrt.';
+      if(diff === 0) return 'heute';
+      if(diff === 1) return 'gestern';
+      return `vor ${diff} Tagen`;
+    }
+    function getDevice(deviceId = activeDeviceId){ return state.devices.find(d => d.id === deviceId); }
+
+    function cbogenIcon(){
+      return `<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M46 12C37.7 4.9 24.9 5.5 17.4 13.2C9.4 21.4 9.5 34.6 17.6 42.6C24.6 49.4 35.3 50.5 43.5 45.9" stroke="currentColor" stroke-width="7" stroke-linecap="round"/>
+        <path d="M37 24H52C55.3 24 58 26.7 58 30V31.5C58 34.8 55.3 37.5 52 37.5H36.5" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+        <path d="M18 50H47" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+        <circle cx="31" cy="31" r="6" fill="currentColor"/>
+      </svg>`;
+    }
+    function imageHTML(device){
+      if(device?.image) return `<img src="${device.image}" alt="Vorschaubild ${escapeHTML(device.name)}">`;
+      return `<div class="device-placeholder">${cbogenIcon()}</div>`;
+    }
+    function miniImageHTML(device){
+      if(device?.image) return `<img src="${device.image}" alt="Vorschaubild ${escapeHTML(device.name)}">`;
+      return cbogenIcon();
+    }
+    function setTopLogo(device = null){
+      if(!els.topLogo) return;
+      if(device?.image){
+        els.topLogo.classList.add('device-logo');
+        els.topLogo.innerHTML = `<img src="${device.image}" alt="${escapeHTML(device.name || 'C-Bogen')}">`;
+      }else{
+        els.topLogo.classList.remove('device-logo');
+        els.topLogo.innerHTML = cbogenIcon();
+      }
+    }
+
+    function renderHome(){
+      els.deviceGrid.innerHTML = '';
+      els.emptyState.hidden = state.devices.length > 0;
+      els.emptyState.style.display = state.devices.length > 0 ? 'none' : 'grid';
+      state.devices.forEach(device => {
+        const card = document.createElement('article');
+        card.className = 'device-card';
+        card.tabIndex = 0;
+        card.setAttribute('role', 'button');
+        card.setAttribute('aria-label', `${device.name || 'C-Bogen'} öffnen`);
+        card.innerHTML = `
+          <button class="card-gear" type="button" aria-label="Einstellungen für ${escapeHTML(device.name)} öffnen">⚙</button>
+          <div class="device-image">${imageHTML(device)}</div>
+          <div class="device-info">
+            <h3>${escapeHTML(device.name || 'Unbenannter C‑Bogen')}</h3>
+            <div class="meta">📍 <span>${escapeHTML(device.location || 'Kein Standort')}</span></div>
+            <div class="meta"># <span>${escapeHTML(device.mgz || 'Keine MGZ‑Nr.')}</span></div>
+          </div>`;
+        card.addEventListener('click', () => openCheckView(device.id));
+        card.addEventListener('keydown', (event) => { if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); openCheckView(device.id); } });
+        card.querySelector('.card-gear').addEventListener('click', (event) => { event.stopPropagation(); openDeviceModal(device.id); });
+        els.deviceGrid.appendChild(card);
+      });
+      renderMetrics();
+    }
+
+    function renderMetrics(){
+      const today = toISODate(new Date());
+      const weekStartDiff = 7;
+      let checkedToday = 0;
+      let checkedWeek = 0;
+      state.devices.forEach(device => {
+        if(device.checks?.[today]) checkedToday++;
+        Object.keys(device.checks || {}).forEach(date => {
+          const diff = daysFromToday(date);
+          if(diff >= 0 && diff <= weekStartDiff) checkedWeek++;
+        });
+      });
+      els.metricDevices.textContent = state.devices.length;
+      els.metricToday.textContent = checkedToday;
+      els.metricWeek.textContent = checkedWeek;
+    }
+
+    function openDeviceModal(deviceId = null){
+      editingDeviceId = deviceId;
+      pendingImage = null;
+      const device = deviceId ? getDevice(deviceId) : null;
+      els.modalTitle.textContent = device ? 'C‑Bogen bearbeiten' : 'C‑Bogen hinzufügen';
+      els.deviceName.value = device?.name || '';
+      els.deviceLocation.value = device?.location || '';
+      els.deviceMgz.value = device?.mgz || '';
+      els.deviceNotes.value = device?.notes || '';
+      els.deviceImage.value = '';
+      els.deleteDeviceBtn.hidden = !device;
+      renderImagePreview(device?.image || null);
+      els.deviceModal.classList.add('open');
+      setTimeout(() => els.deviceName.focus(), 50);
+    }
+    function closeDeviceModal(){ els.deviceModal.classList.remove('open'); editingDeviceId = null; pendingImage = null; }
+    function renderImagePreview(src){
+      els.imagePreview.innerHTML = src ? `<img src="${src}" alt="Vorschau">` : cbogenIcon();
+    }
+
+    async function handleImageFile(file){
+      if(!file) return;
+      try{
+        pendingImage = await cropToSquare(file);
+        renderImagePreview(pendingImage);
+      }catch(err){
+        console.error(err);
+        toast('Bild konnte nicht geladen werden.');
+      }
+    }
+    function cropToSquare(file){
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onerror = () => reject(new Error('Datei konnte nicht gelesen werden'));
+        reader.onload = () => {
+          const img = new Image();
+          img.onerror = () => reject(new Error('Bild konnte nicht verarbeitet werden'));
+          img.onload = () => {
+            const size = Math.min(img.naturalWidth, img.naturalHeight);
+            const sx = (img.naturalWidth - size) / 2;
+            const sy = (img.naturalHeight - size) / 2;
+            const canvas = document.createElement('canvas');
+            canvas.width = 700; canvas.height = 700;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, sx, sy, size, size, 0, 0, 700, 700);
+            resolve(canvas.toDataURL('image/jpeg', .86));
+          };
+          img.src = reader.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function saveDevice(){
+      const name = els.deviceName.value.trim();
+      if(!name){ toast('Bitte einen Namen für den C‑Bogen eintragen.'); els.deviceName.focus(); return; }
+      const payload = {
+        name,
+        location: els.deviceLocation.value.trim(),
+        mgz: els.deviceMgz.value.trim(),
+        notes: els.deviceNotes.value.trim()
+      };
+      if(editingDeviceId){
+        const device = getDevice(editingDeviceId);
+        if(!device) return;
+        Object.assign(device, payload);
+        if(pendingImage) device.image = pendingImage;
+        toast('C‑Bogen aktualisiert.');
+      }else{
+        state.devices.push({ id:id(), ...payload, image: pendingImage || '', permanentInfo:'', checks:{} });
+        toast('C‑Bogen hinzugefügt.');
+      }
+      persist();
+      closeDeviceModal();
+      renderHome();
+      if(activeDeviceId) renderCheckView();
+    }
+
+    function deleteDevice(){
+      const device = getDevice(editingDeviceId);
+      if(!device) return;
+      const ok = confirm(`C‑Bogen „${device.name}“ wirklich löschen? Alle Prüfungsdaten dieses Geräts werden entfernt.`);
+      if(!ok) return;
+      state.devices.splice(state.devices.findIndex(d => d.id === editingDeviceId), 1);
+      if(activeDeviceId === editingDeviceId){ activeDeviceId = null; showHome(); }
+      persist(); closeDeviceModal(); renderHome(); toast('C‑Bogen gelöscht.');
+    }
+
+    function openCheckView(deviceId){
+      activeDeviceId = deviceId;
+      selectedDate = toISODate(new Date());
+      calBase = firstOfMonth(new Date());
+      els.checkDate.value = selectedDate;
+      const lastName = localStorage.getItem('c-pruefung-last-person') || '';
+      els.checkPerson.value = lastName;
+      els.checkNote.value = '';
+      document.body.classList.add('check-mode');
+      els.homeView.classList.remove('active');
+      els.checkView.classList.add('active');
+      renderCheckView();
+      window.scrollTo({top:0, behavior:'smooth'});
+    }
+    function showHome(){
+      document.body.classList.remove('check-mode');
+      els.checkView.classList.remove('active');
+      els.homeView.classList.add('active');
+      els.topbarTitle.textContent = 'C-Prüfung';
+      els.topbarSubtitle.textContent = 'Dokumentation der arbeitstäglichen Konstanzprüfung für C‑Bögen';
+      setTopLogo(null);
+      els.topBackHomeBtn.hidden = true; els.exportPdfBtn.hidden = true;
+      els.backupBtn.hidden = false; els.importFile.previousElementSibling.hidden = false; els.addDeviceBtn.hidden = false;
+      activeDeviceId = null;
+      renderHome();
+      window.scrollTo({top:0, behavior:'smooth'});
+    }
+
+    function renderCheckView(){
+      const device = getDevice();
+      if(!device){ showHome(); return; }
+      els.topbarTitle.textContent = device.name || 'C‑Bogen';
+      els.topbarSubtitle.textContent = `Arbeitstägliche Konstanzprüfung · ${device.location || 'Kein Standort'} · ${device.mgz || 'Keine MGZ‑Nr.'}`;
+      setTopLogo(device);
+      els.topBackHomeBtn.hidden = false; els.exportPdfBtn.hidden = false;
+      els.backupBtn.hidden = true; els.importFile.previousElementSibling.hidden = true; els.addDeviceBtn.hidden = true;
+      els.permanentInfo.value = device.permanentInfo || '';
+      els.deviceInfoList.innerHTML = `
+        <div><b>Name:</b> <span>${escapeHTML(device.name || '—')}</span></div>
+        <div><b>Standort:</b> <span>${escapeHTML(device.location || '—')}</span></div>
+        <div><b>MGZ‑Nr.:</b> <span>${escapeHTML(device.mgz || '—')}</span></div>
+        <div><b>Notizen:</b> <span>${escapeHTML(device.notes || '—')}</span></div>`;
+      updateEditState();
+      renderCalendar();
+      renderDayInfo();
+    }
+
+    function updateEditState(){
+      const iso = els.checkDate.value || selectedDate;
+      selectedDate = iso;
+      const diff = daysFromToday(iso);
+      const editable = isEditableDate(iso);
+      els.dateHint.textContent = dateStatusText(iso);
+      updateScreenUI(editable);
+      if(!editable){
+        els.lockNote.classList.add('show');
+        els.lockNote.textContent = diff < 0 ? 'Dieser Tag liegt in der Zukunft. Eine Dokumentation ist erst am jeweiligen Tag möglich.' : 'Mehr als 7 Tage zurückliegende Einträge sind gesperrt und können nicht verändert werden.';
+      }else{
+        els.lockNote.classList.remove('show');
+        els.lockNote.textContent = '';
+      }
+      renderCalendar();
+      renderDayInfo();
+    }
+
+    function saveCheck(){
+      const device = getDevice();
+      if(!device) return;
+      const date = els.checkDate.value;
+      if(!date){ toast('Bitte ein Datum auswählen.'); return; }
+      if(!isEditableDate(date)){ toast('Dieser Tag kann nicht mehr geändert werden.'); return; }
+      const person = els.checkPerson.value.trim();
+      if(!person){ toast('Bitte den Namen der prüfenden Person eintragen.'); els.checkPerson.focus(); return; }
+      if(selectedScreens.size === 0){ toast('Bitte zuerst linken oder rechten Bildschirm bestätigen.'); return; }
+      device.checks[date] = { ok:true, date, person, notes: els.checkNote.value.trim(), screens:Array.from(selectedScreens), createdAt: new Date().toISOString() };
+      localStorage.setItem('c-pruefung-last-person', person);
+      persist();
+      selectedDate = date;
+      renderCheckView();
+      toast('Konstanzprüfung eingetragen.');
+    }
+
+    function deleteCheck(date = selectedDate){
+      const device = getDevice();
+      if(!device || !device.checks[date]) return;
+      if(!isEditableDate(date)){ toast('Dieser Eintrag ist gesperrt.'); return; }
+      const ok = confirm(`Eintrag vom ${formatDate(date)} wirklich löschen?`);
+      if(!ok) return;
+      delete device.checks[date];
+      persist();
+      if(els.checkDate.value === date) els.checkNote.value = '';
+      renderCheckView();
+      toast('Eintrag gelöscht.');
+    }
+
+    function loadCheckToForm(date){
+      const device = getDevice();
+      selectedDate = date;
+      els.checkDate.value = date;
+      const entry = device?.checks?.[date];
+      if(entry){
+        els.checkPerson.value = entry.person || els.checkPerson.value;
+        els.checkNote.value = entry.notes || '';
+        selectedScreens = new Set(Array.isArray(entry.screens) ? entry.screens : []);
+      }else{
+        els.checkNote.value = '';
+        selectedScreens.clear();
+      }
+      updateEditState();
+    }
+
+    function renderCalendar(){
+      const device = getDevice();
+      if(!device) return;
+      els.monthGrid.innerHTML = '';
+      [calBase, addMonths(calBase, 1)].forEach(monthDate => els.monthGrid.appendChild(renderMonth(monthDate, device)));
+    }
+    function renderMonth(monthDate, device){
+      const wrapper = document.createElement('div');
+      wrapper.className = 'month';
+      const title = document.createElement('h3');
+      title.textContent = formatMonth(monthDate);
+      const weekdays = document.createElement('div');
+      weekdays.className = 'weekdays';
+      ['Mo','Di','Mi','Do','Fr','Sa','So'].forEach(d => { const span = document.createElement('span'); span.textContent = d; weekdays.appendChild(span); });
+      const days = document.createElement('div');
+      days.className = 'days';
+      const start = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
+      const firstDay = (start.getDay() + 6) % 7;
+      const gridStart = new Date(start); gridStart.setDate(start.getDate() - firstDay);
+      for(let i=0;i<42;i++){
+        const current = new Date(gridStart); current.setDate(gridStart.getDate()+i);
+        const iso = toISODate(current);
+        const entry = device.checks?.[iso];
+        const cell = document.createElement('button');
+        cell.type = 'button';
+        cell.className = 'day';
+        if(current.getMonth() !== monthDate.getMonth()) cell.classList.add('out');
+        if(current.getDay() === 0 || current.getDay() === 6) cell.classList.add('weekend');
+        if(iso === toISODate(new Date())) cell.classList.add('today');
+        if(iso === selectedDate) cell.classList.add('selected');
+        cell.innerHTML = `
+          <div class="day-number"><span>${current.getDate()}</span>${entry ? '<span class="check-badge">✓</span>' : ''}</div>
+          ${entry ? `<div class="person">${escapeHTML(entry.person || '—')}</div>` : ''}
+          ${entry?.notes ? `<div class="small-note">${escapeHTML(entry.notes)}</div>` : ''}`;
+        cell.addEventListener('click', () => openDayModal(iso));
+        days.appendChild(cell);
+      }
+      wrapper.append(title, weekdays, days);
+      return wrapper;
+    }
+
+    function renderDayInfo(){
+      if(!els.dayInfo) return;
+      els.dayInfo.hidden = true;
+      els.dayInfo.innerHTML = '';
+    }
+
+    function toggleScreen(screen){
+      const editable = isEditableDate(els.checkDate.value || selectedDate);
+      if(!editable) return;
+      if(selectedScreens.has(screen)) selectedScreens.delete(screen); else selectedScreens.add(screen);
+      updateScreenUI(editable);
+    }
+    function updateScreenUI(editable = isEditableDate(els.checkDate.value || selectedDate)){
+      const hasSelection = selectedScreens.size > 0;
+      [['left', els.screenLeftBtn], ['right', els.screenRightBtn]].forEach(([key, btn]) => {
+        if(!btn) return;
+        const selected = selectedScreens.has(key);
+        btn.classList.toggle('selected', selected);
+        btn.setAttribute('aria-pressed', selected ? 'true' : 'false');
+        btn.disabled = !editable;
+      });
+      if(els.screenHint){
+        els.screenHint.textContent = hasSelection ? 'Bildschirm bestätigt' : 'Mindestens einen Bildschirm bestätigen';
+      }
+      els.saveCheckBtn.disabled = !editable || !hasSelection;
+    }
+    function screenLabel(key){ return key === 'left' ? 'Linker Bildschirm' : key === 'right' ? 'Rechter Bildschirm' : key; }
+    function openDayModal(date){
+      const device = getDevice();
+      if(!device) return;
+      selectedDate = date;
+      renderCalendar();
+      const entry = device.checks?.[date];
+      const editable = isEditableDate(date);
+      els.dayModalTitle.textContent = formatDate(date);
+      if(entry){
+        const screens = Array.isArray(entry.screens) && entry.screens.length ? entry.screens : [];
+        const screenHTML = screens.length ? screens.map(s => `<span class="screen-tag">✓ ${escapeHTML(screenLabel(s))}</span>`).join('') : '<span class="screen-tag">✓ Bildschirm bestätigt</span>';
+        els.dayModalBody.innerHTML = `
+          <div class="day-status">
+            <p><b>Status:</b> Grüner Haken – C‑Bogen in Ordnung</p>
+            <p><b>Durchgeführt von:</b> ${escapeHTML(entry.person || '—')}</p>
+            <p><b>Uhrzeit der Eintragung:</b> ${formatTime(entry.createdAt)}</p>
+            <p><b>Bildschirmkontrolle:</b></p>
+            <div class="screen-tags">${screenHTML}</div>
+            <p><b>Notizen:</b><br>${entry.notes ? escapeHTML(entry.notes).replace(/\n/g,'<br>') : '—'}</p>
+            <div class="day-actions">
+              <button class="btn btn-ghost" type="button" id="modalLoadDayBtn">In Formular laden</button>
+              ${editable ? '<button class="btn btn-danger" type="button" id="modalDeleteCheckBtn">Eintrag löschen</button>' : '<button class="btn" type="button" disabled>🔒 gesperrt</button>'}
+            </div>
+          </div>`;
+        $('#modalLoadDayBtn')?.addEventListener('click', () => { loadCheckToForm(date); closeDayModal(); });
+        $('#modalDeleteCheckBtn')?.addEventListener('click', () => { closeDayModal(); deleteCheck(date); });
+      }else{
+        els.dayModalBody.innerHTML = `
+          <div class="day-status">
+            <p><b>Status:</b> Noch keine Konstanzprüfung eingetragen.</p>
+            <p>${editable ? 'Dieser Tag kann über das Formular dokumentiert werden.' : dateStatusText(date)}</p>
+            <div class="day-actions">
+              ${editable ? '<button class="btn btn-primary" type="button" id="modalLoadDayBtn">Für Eintragung laden</button>' : '<button class="btn" type="button" disabled>🔒 nicht bearbeitbar</button>'}
+            </div>
+          </div>`;
+        $('#modalLoadDayBtn')?.addEventListener('click', () => { loadCheckToForm(date); closeDayModal(); });
+      }
+      els.dayModal.classList.add('open');
+    }
+    function closeDayModal(){ els.dayModal.classList.remove('open'); }
+
+
+    function openExportModal(){
+      const device = getDevice();
+      if(!device) return;
+      const dates = Object.keys(device.checks || {}).sort();
+      const today = toISODate(new Date());
+      els.exportStart.value = dates[0] || today;
+      els.exportEnd.value = dates[dates.length - 1] || today;
+      els.exportNote.textContent = `Exportiert werden alle eingetragenen Prüfungen von „${device.name || 'C-Bogen'}“ im gewählten Zeitraum.`;
+      els.exportModal.classList.add('open');
+      setTimeout(() => els.exportStart.focus(), 50);
+    }
+    function closeExportModal(){ els.exportModal.classList.remove('open'); }
+    function exportDevicePdf(){
+      const device = getDevice();
+      if(!device) return;
+      const start = els.exportStart.value;
+      const end = els.exportEnd.value;
+      if(!start || !end){ toast('Bitte Start- und Enddatum auswählen.'); return; }
+      if(start > end){ toast('Der Start des Zeitraums muss vor dem Ende liegen.'); return; }
+      const rows = Object.values(device.checks || {})
+        .filter(entry => entry.date >= start && entry.date <= end)
+        .sort((a,b) => a.date.localeCompare(b.date));
+      const rowHTML = rows.length ? rows.map(entry => {
+        const screens = Array.isArray(entry.screens) && entry.screens.length ? entry.screens.map(screenLabel).join(', ') : '—';
+        return `<tr>
+          <td>${escapeHTML(formatDate(entry.date))}</td>
+          <td>C‑Bogen in Ordnung</td>
+          <td>${escapeHTML(entry.person || '—')}</td>
+          <td>${escapeHTML(formatTime(entry.createdAt))}</td>
+          <td>${escapeHTML(screens)}</td>
+          <td>${entry.notes ? escapeHTML(entry.notes).replace(/\n/g,'<br>') : '—'}</td>
+        </tr>`;
+      }).join('') : `<tr><td colspan="6" class="empty">Keine Einträge im gewählten Zeitraum.</td></tr>`;
+      const title = `C-Prüfung_${(device.name || 'C-Bogen').replace(/[^\p{L}\p{N}]+/gu,'_')}_${start}_bis_${end}`;
+      const printHtml = `<!doctype html><html lang="de"><head><meta charset="utf-8"><title>${escapeHTML(title)}</title>
+        <style>
+          *{box-sizing:border-box} body{font-family:Arial,Helvetica,sans-serif;color:#102838;margin:24px;font-size:12px} 
+          header{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;border-bottom:2px solid #0b77bd;padding-bottom:14px;margin-bottom:18px}
+          h1{margin:0;font-size:22px;letter-spacing:-.02em} h2{margin:16px 0 8px;font-size:15px} p{margin:4px 0;color:#4a5d6c}.logo{width:70px;height:70px;border-radius:16px;border:1px solid #cfe3ec;display:grid;place-items:center;overflow:hidden;color:#0b77bd}.logo img{width:100%;height:100%;object-fit:cover}.meta{display:grid;grid-template-columns:130px 1fr;gap:4px 10px;margin:10px 0 0}.meta b{color:#123a52}.period{background:#eef7fb;border:1px solid #cfe3ec;border-radius:12px;padding:10px;margin:10px 0 16px}
+          table{width:100%;border-collapse:collapse;margin-top:10px} th,td{border:1px solid #c9dce7;padding:7px;vertical-align:top;text-align:left} th{background:#e7f5fb;color:#123a52} tr:nth-child(even) td{background:#f8fcfe}.empty{text-align:center;color:#66798a;padding:20px}.note-box{border:1px solid #c9dce7;border-radius:12px;padding:10px;min-height:42px;white-space:pre-wrap}.footer{margin-top:22px;color:#66798a;text-align:center;font-size:11px}
+          @media print{body{margin:12mm} button{display:none}}
+        </style></head><body>
+        <header>
+          <div>
+            <h1>Dokumentation der arbeitstäglichen Konstanzprüfung für C‑Bögen</h1>
+            <p><b>C‑Bogen:</b> ${escapeHTML(device.name || '—')}</p>
+            <div class="meta">
+              <b>Standort</b><span>${escapeHTML(device.location || '—')}</span>
+              <b>MGZ‑Nr.</b><span>${escapeHTML(device.mgz || '—')}</span>
+              <b>Exportzeitraum</b><span>${escapeHTML(formatDate(start))} bis ${escapeHTML(formatDate(end))}</span>
+              <b>Erstellt am</b><span>${escapeHTML(new Date().toLocaleString('de-DE'))}</span>
+            </div>
+          </div>
+          <div class="logo">${device.image ? `<img src="${device.image}" alt="${escapeHTML(device.name || 'C-Bogen')}">` : cbogenIcon()}</div>
+        </header>
+        <section class="period"><b>Exportierte Einträge:</b> ${rows.length}</section>
+        <h2>Geräteinformationen</h2>
+        <div class="meta">
+          <b>Gerätenotizen</b><span>${escapeHTML(device.notes || '—')}</span>
+          <b>Permanente Infos</b><span>${escapeHTML(device.permanentInfo || '—')}</span>
+        </div>
+        <h2>Prüfungseinträge</h2>
+        <table>
+          <thead><tr><th>Datum</th><th>Status</th><th>Name</th><th>Zeitpunkt der Eintragung</th><th>Bildschirmkontrolle</th><th>Notizen</th></tr></thead>
+          <tbody>${rowHTML}</tbody>
+        </table>
+        <div class="footer">© Sachariy Mark</div>
+        <script>window.addEventListener('load',()=>{setTimeout(()=>window.print(),150);});<\/script>
+      </body></html>`;
+      const printWindow = window.open('', '_blank');
+      if(!printWindow){ toast('PDF-Fenster konnte nicht geöffnet werden. Bitte Pop-ups erlauben.'); return; }
+      printWindow.document.open();
+      printWindow.document.write(printHtml);
+      printWindow.document.close();
+      closeExportModal();
+      toast('PDF-Ansicht geöffnet. Im Druckdialog „Als PDF speichern“ wählen.');
+    }
+
+    function exportBackup(){
+      const stamp = new Date().toISOString().slice(0,10);
+      const blob = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `c-pruefung-sicherung-${stamp}.json`;
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+      toast('Sicherung erstellt.');
+    }
+    function importBackup(file){
+      if(!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try{
+          const data = JSON.parse(reader.result);
+          if(!data || !Array.isArray(data.devices)) throw new Error('Ungültiges Format');
+          const ok = confirm('Vorhandene Daten werden durch diese Sicherung ersetzt. Fortfahren?');
+          if(!ok) return;
+          state.devices = data.devices;
+          state.devices.forEach(d => { d.checks = d.checks || {}; d.notes = d.notes || ''; d.permanentInfo = d.permanentInfo || ''; Object.values(d.checks).forEach(c => { c.screens = Array.isArray(c.screens) ? c.screens : []; }); });
+          persist(); showHome(); renderHome(); toast('Sicherung importiert.');
+        }catch(err){ toast('Import fehlgeschlagen: keine gültige C‑Prüfung-Sicherung.'); }
+        els.importFile.value = '';
+      };
+      reader.readAsText(file);
+    }
+
+    let toastTimer = null;
+    function toast(message){
+      clearTimeout(toastTimer);
+      els.toast.textContent = message;
+      els.toast.classList.add('show');
+      toastTimer = setTimeout(() => els.toast.classList.remove('show'), 2600);
+    }
+
+    els.addDeviceBtn.addEventListener('click', () => openDeviceModal());
+    els.closeModalBtn.addEventListener('click', closeDeviceModal);
+    els.cancelModalBtn.addEventListener('click', closeDeviceModal);
+    els.deviceModal.addEventListener('click', (event) => { if(event.target === els.deviceModal) closeDeviceModal(); });
+    els.saveDeviceBtn.addEventListener('click', saveDevice);
+    els.deleteDeviceBtn.addEventListener('click', deleteDevice);
+    els.deviceImage.addEventListener('change', (event) => handleImageFile(event.target.files[0]));
+    els.topBackHomeBtn.addEventListener('click', showHome);
+    els.exportPdfBtn.addEventListener('click', openExportModal);
+    els.screenLeftBtn.addEventListener('click', () => toggleScreen('left'));
+    els.screenRightBtn.addEventListener('click', () => toggleScreen('right'));
+    els.closeDayModalBtn.addEventListener('click', closeDayModal);
+    els.dayModal.addEventListener('click', (event) => { if(event.target === els.dayModal) closeDayModal(); });
+    els.closeExportModalBtn.addEventListener('click', closeExportModal);
+    els.cancelExportModalBtn.addEventListener('click', closeExportModal);
+    els.exportModal.addEventListener('click', (event) => { if(event.target === els.exportModal) closeExportModal(); });
+    els.startPdfExportBtn.addEventListener('click', exportDevicePdf);
+    els.saveCheckBtn.addEventListener('click', saveCheck);
+    els.checkDate.addEventListener('change', () => loadCheckToForm(els.checkDate.value));
+    els.permanentInfo.addEventListener('input', () => {
+      const device = getDevice(); if(!device) return;
+      device.permanentInfo = els.permanentInfo.value;
+      persist();
+    });
+    els.prevMonthBtn.addEventListener('click', () => { calBase = addMonths(calBase, -1); renderCalendar(); });
+    els.nextMonthBtn.addEventListener('click', () => { calBase = addMonths(calBase, 1); renderCalendar(); });
+    els.todayBtn.addEventListener('click', () => { calBase = firstOfMonth(new Date()); loadCheckToForm(toISODate(new Date())); });
+    els.backupBtn.addEventListener('click', exportBackup);
+    els.importFile.addEventListener('change', event => importBackup(event.target.files[0]));
+    document.addEventListener('keydown', (event) => {
+      if(event.key !== 'Escape') return;
+      if(els.exportModal.classList.contains('open')) closeExportModal();
+      if(els.dayModal.classList.contains('open')) closeDayModal();
+      if(els.deviceModal.classList.contains('open')) closeDeviceModal();
+    });
+
+    renderHome();
+  </script>
+</body>
+</html>
