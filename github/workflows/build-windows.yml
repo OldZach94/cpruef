@@ -6,8 +6,6 @@ on:
     branches:
       - main
       - master
-    tags:
-      - "v*"
 
 permissions:
   contents: read
@@ -19,12 +17,13 @@ jobs:
 
     steps:
       - name: Projektdateien laden
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
-      - name: Node.js einrichten
-        uses: actions/setup-node@v4
+      - name: Node.js 24 einrichten
+        uses: actions/setup-node@v5
         with:
-          node-version: "20"
+          node-version: "24"
+          package-manager-cache: false
 
       - name: Abhaengigkeiten installieren
         run: npm install --no-audit --no-fund
